@@ -16,9 +16,11 @@ exports.handler = async (event) => {
     //El lan (Lenguaje) es opcional, y puede enviarse informacion en otros variables
     //El operador ... puede guardar varias variables en un objeto
     //Todas la variables adicionales a lang se guardan en el objeto info
-
-    let {lang, ...info} = event.queryStringParameters; //queryStringParameters es un atributo predefinido de API Gateway AWS Proxy
+    //queryStringParameters es un atributo predefinido de API Gateway AWS Proxy
+    //Si queryStringParameters no tiene valor lo dejamos vacio: || { }
     
+    let {lang, ...info} = event.queryStringParameters || { }; 
+
     //Concatenamos variables para obtener nuestro mensaje, el saludo con el nombre
     //Buscamos en nuestro objeto greeting el lenguaje, si no esta usamos en (Enlgish) por defecto
     let message = `${greeting[lang] ? greeting[lang] : greeting['en']} ${name}`;
@@ -32,9 +34,12 @@ exports.handler = async (event) => {
         timestamp: moment().unix()
     }
     
-    //Estamos usando un API Gateway por lo que se espera un respuesta http no una respuesta normal.
+    //Estamos usando un API Gateway con lambda proxy por lo que se espera un respuesta http no una respuesta normal.
     return {
         statusCode: 200,
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        },
         body: JSON.stringify(response)
     }
 }
